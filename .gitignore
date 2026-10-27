@@ -1,0 +1,17 @@
+# Python caches and local environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+# Local credentials: never commit secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+# Local runtime artifacts
+*.log
+.pytest_cache/
+.DS_Store
+Thumbs.db
+node_modules/
