@@ -1,3 +1,9 @@
+# 1.2.2
+
+- Synchronize displayed width/height with the selected resolution preset.
+- Preserve and restore custom dimensions; manual dimension edits switch to Custom.
+- Retain automatic nearest supported size rounding and legacy workflow repair.
+
 # 1.2.1
 
 - Repair legacy widget values loaded by position (FPS 512, height Custom, invalid preset).

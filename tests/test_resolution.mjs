@@ -1,0 +1,20 @@
+import fs from 'node:fs';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+let extension;
+const source=fs.readFileSync(new URL('../web/resolution.js',import.meta.url),'utf8').replace(/^import .*;\n/,'');
+vm.runInNewContext(source,{app:{registerExtension:e=>extension=e},queueMicrotask:f=>f(),Symbol,Number,Array,String});
+const node={comfyClass:'H3VideoController',properties:{},widgets:[{name:'width',value:854},{name:'height',value:479},{name:'resolution_preset',value:'Custom'}]};
+const [w,h,p]=node.widgets;
+extension.nodeCreated(node);
+function select(value){p.value=value;p.callback(value)}
+select('Landscape 1344 x 768');assert.equal(w.value,1344);assert.equal(h.value,768);
+select('Square 640 x 640');assert.equal(w.value,640);assert.equal(h.value,640);
+select('Custom');assert.equal(w.value,854);assert.equal(h.value,479);
+select('Portrait 480 x 864');w.value=777;w.callback(777);
+assert.equal(p.value,'Custom');assert.equal(w.value,777);assert.equal(h.value,864);
+select('Square 512 x 512');select('Custom');assert.equal(w.value,777);assert.equal(h.value,864);
+p.value='Landscape 1344 x 768';w.value=512;h.value=512;
+extension.loadedGraphNode(node);assert.equal(w.value,1344);assert.equal(h.value,768);
+select('Custom');assert.equal(w.value,777);assert.equal(h.value,864);
+console.log('PASS: preset dimensions, custom restore, manual edits, workflow reload');

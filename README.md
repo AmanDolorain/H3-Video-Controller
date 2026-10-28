@@ -1,4 +1,4 @@
-# H3 Video Controller 1.2.1
+# H3 Video Controller 1.2.2
 
 Author: Aman Dolorain
 
@@ -46,3 +46,7 @@ Run `python -m unittest discover -s tests -v`. Native-source checks are optional
 ## Legacy workflow repair in 1.2.1
 
 The frontend repairs old positional widget values, removes obsolete inputs and duplicate/obsolete output layouts when loading a workflow. Invalid output layouts are disconnected and rebuilt; reconnect these wires by name. This avoids silently retaining wires whose meanings shifted in an earlier update. Back up your workflow before upgrading. Replace the complete folder so web/migration.js is included. Restart ComfyUI, hard-refresh, and reopen the workflow.
+
+## Resolution controls in 1.2.2
+
+Selecting a resolution preset updates the visible width and height. Custom preserves the entered dimensions; execution aligns them to the nearest multiple of 32 (minimum 32). Returning to Custom restores the last custom size, saved in node properties. Editing either dimension while a preset is selected switches to Custom. Loaded workflows synchronize the selected preset after legacy migration. Install the complete folder including web/resolution.js.
