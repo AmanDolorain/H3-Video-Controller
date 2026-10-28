@@ -1,4 +1,4 @@
-# H3 Video Controller 1.2.0
+# H3 Video Controller 1.2.1
 
 Author: Aman Dolorain
 
@@ -42,3 +42,7 @@ The internal bottom bar uses the node header color. White ♪ Aman Dolorain text
 ## Validation
 
 Run `python -m unittest discover -s tests -v`. Native-source checks are optional with COMFYUI_H3_SOURCE set. Full GPU generation and frontend appearance must be verified in the target ComfyUI installation.
+
+## Legacy workflow repair in 1.2.1
+
+The frontend repairs old positional widget values, removes obsolete inputs and duplicate/obsolete output layouts when loading a workflow. Invalid output layouts are disconnected and rebuilt; reconnect these wires by name. This avoids silently retaining wires whose meanings shifted in an earlier update. Back up your workflow before upgrading. Replace the complete folder so web/migration.js is included. Restart ComfyUI, hard-refresh, and reopen the workflow.

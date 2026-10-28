@@ -1,3 +1,9 @@
+# 1.2.1
+
+- Repair legacy widget values loaded by position (FPS 512, height Custom, invalid preset).
+- Remove stale legacy inputs and rebuild invalid output layouts, disconnecting ambiguous old wires.
+- Preserve the approved footer and current five controls.
+
 # 1.2.0
 
 - Show only duration_seconds, fps (fixed native 24), width, height and resolution_preset.
