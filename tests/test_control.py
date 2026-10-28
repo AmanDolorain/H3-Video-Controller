@@ -111,9 +111,18 @@ class WrapperTests(unittest.TestCase):
     def test_removed_inputs_and_conditioning_output(self):
         fields = MODULE.H3VideoController.INPUT_TYPES()
         self.assertNotIn('optional', fields)
-        for name in ('clip', 'video_vae', 'first_frame', 'last_frame', 'prompt', 'prepare_mode'):
+        for name in ('clip', 'video_vae', 'first_frame', 'last_frame', 'prompt', 'prepare_mode', 'size_rounding', 'frame_rounding'):
             self.assertNotIn(name, fields['required'])
         self.assertNotIn('CONDITIONING', MODULE.H3VideoController.RETURN_TYPES)
+
+    def test_fps_cannot_mislabel_native_timing(self):
+        for fps in (25, 30, 0, True, float('nan')):
+            with self.subTest(fps=fps), patch.object(MODULE, '_native_module') as load:
+                with self.assertRaisesRegex(ValueError, '24 FPS'):
+                    MODULE.H3VideoController().prepare(**self.args(fps=fps))
+                load.assert_not_called()
+        field = MODULE.H3VideoController.INPUT_TYPES()['required']['fps'][1]
+        self.assertEqual((field['default'],field['min'],field['max']), (24.,24.,24.))
 
     def test_empty_latent_receives_aligned_dimensions_and_returns_metadata(self):
         p=make_plan(width=854,height=479)

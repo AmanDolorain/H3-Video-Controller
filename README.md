@@ -1,4 +1,4 @@
-# H3 Video Controller 1.1.0
+# H3 Video Controller 1.2.0
 
 Author: Aman Dolorain
 
@@ -7,10 +7,12 @@ Controls MiniMax H3 duration, resolution and frame rounding. Produces a native e
 ## Inputs
 
 - duration_seconds
+- fps: native H3 24 FPS (fixed)
 - width, height
 - resolution_preset
-- size_rounding
-- frame_rounding
+
+
+Size rounding is automatic nearest multiple of 32; frame count rounds up to the supported H3 frame grid. Neither rounding dropdown is shown.
 
 H3 timing and size rules are unchanged from 1.0.0: fixed 24 FPS, frame grid 17k+5, dimensions aligned to 32. Use actual_duration_seconds when matching audio to the prepared clip.
 
@@ -31,7 +33,7 @@ Connect width, height and frame_count to the separate MiniMax H3 Reference to Vi
 
 ## Upgrade from 1.0.0
 
-Replace the complete H3VideoController folder and restart ComfyUI, then hard-refresh the browser. Back up your workflow, remove the old H3 controller and add a fresh H3 Video Controller. Reconnect by output name: removing positive shifts output socket indices. The old clip, video_vae, first_frame, last_frame, prompt and prepare_mode inputs are removed. Other controls retain their behavior.
+Replace the complete H3VideoController folder and restart ComfyUI, then hard-refresh the browser. Back up your workflow, remove the old H3 controller and add a fresh H3 Video Controller. Reconnect by output name: removing positive shifts output socket indices. The old clip, video_vae, first_frame, last_frame, prompt, prepare_mode, size_rounding and frame_rounding inputs are removed. FPS is shown as fixed 24 because native H3 does not support a different generation FPS. Other controls retain their behavior.
 
 ## Branding
 

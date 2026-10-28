@@ -1,3 +1,10 @@
+# 1.2.0
+
+- Show only duration_seconds, fps (fixed native 24), width, height and resolution_preset.
+- Automatically align size to nearest supported multiple of 32 and round frames up to the H3 grid.
+- Keep all eight 1.1.0 outputs and the approved footer unchanged.
+- Recreate nodes loaded from old workflows to remove stale serialized sockets/widgets.
+
 # Changelog
 
 ## 1.1.0

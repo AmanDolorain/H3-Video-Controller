@@ -3,7 +3,7 @@ from importlib import import_module
 from .planning import FPS, PRESETS, make_plan
 
 __author__ = 'Aman Dolorain'
-__version__ = '1.1.0'
+__version__ = '1.2.0'
 WEB_DIRECTORY = './web'
 
 
@@ -46,20 +46,20 @@ class H3VideoController:
     def INPUT_TYPES(cls):
         return {'required': {
             'duration_seconds': ('FLOAT', {'default': 5.0, 'min': 0.01, 'max': 149.66, 'step': 0.1}),
+            'fps': ('FLOAT', {'default': FPS, 'min': FPS, 'max': FPS, 'step': 1,
+                'tooltip': 'MiniMax H3 native generation rate is fixed at 24 FPS.'}),
             'width': ('INT', {'default': 512, 'min': 1, 'max': 16384, 'step': 1}),
             'height': ('INT', {'default': 512, 'min': 1, 'max': 16384, 'step': 1}),
             'resolution_preset': (list(PRESETS), {'default': 'Custom',
                 'tooltip': 'Custom uses width/height. Other presets override both.'}),
-            'size_rounding': (['nearest', 'down', 'up', 'exact'], {'default': 'nearest',
-                'tooltip': 'H3 internally uses multiples of 32. Exact preserves a supported size.'}),
-            'frame_rounding': (['up', 'nearest', 'down'], {'default': 'up',
-                'tooltip': 'H3 frame grid is 17k+5 at fixed 24 FPS. Outputs report actual timing.'}),
         }}
 
     def prepare(self, duration_seconds, width, height, resolution_preset='Custom',
-                size_rounding='nearest', frame_rounding='up'):
+                fps=FPS):
+        if isinstance(fps, bool) or fps != FPS:
+            raise ValueError('MiniMax H3 native generation requires 24 FPS.')
         plan = make_plan(duration_seconds, width, height, resolution_preset,
-                         size_rounding, frame_rounding)
+                         'nearest', 'up')
         native = _native_module()
         if not hasattr(native, 'EmptyMiniMaxH3LatentAV'):
             raise RuntimeError('This ComfyUI build lacks EmptyMiniMaxH3LatentAV. Update ComfyUI.')
