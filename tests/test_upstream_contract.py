@@ -57,18 +57,3 @@ class NativeSourceTests(unittest.TestCase):
             actual=self.native.EmptyMiniMaxH3LatentAV.execute(p.width,p.height,p.frames).result[0]
             MODULE._check_latent(actual,p)
 
-    def test_native_i2v_keyframe_path(self):
-        class Image:
-            def __getitem__(self,key): return self
-        class Clip:
-            def tokenize(self,text,images): return (text,images)
-            def encode_from_tokens_scheduled(self,tokens): return {'tokens':tokens}
-        vae=types.SimpleNamespace(encode=lambda image:'encoded-keyframe')
-        from unittest.mock import patch
-        with patch.object(MODULE,'_native_module',return_value=self.native):
-            result=MODULE.H3VideoController().prepare(5,512,512,clip=Clip(),video_vae=vae,
-                prompt='Scene and audio',first_frame=Image(),last_frame=Image())['result']
-        keyframes=result[1][1]['minimax_keyframes']
-        self.assertEqual([x['resolved_frame_index'] for x in keyframes],[0,123])
-        self.assertEqual([x['latent'] for x in keyframes],['encoded-keyframe']*2)
-        self.assertEqual(self.resize_calls[-2:],[(512,512,'disabled'),(512,512,'center')])

@@ -3,7 +3,7 @@ from importlib import import_module
 from .planning import FPS, PRESETS, make_plan
 
 __author__ = 'Aman Dolorain'
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 WEB_DIRECTORY = './web'
 
 
@@ -34,14 +34,13 @@ def _check_latent(latent, plan):
 
 class H3VideoController:
     CATEGORY = 'ComfyUI/Video/H3/Control'
-    DESCRIPTION = ('Author: Aman Dolorain. MiniMax H3 24 FPS timing, flexible resolution, '
-                   'native joint AV latent, and optional native T2V/I2V preparation. '
-                   'Use matching H3 models; this is not a sampler or a universal model adapter.')
+    DESCRIPTION = ('MiniMax H3 timing, resolution and empty joint video/audio latent. '
+                   'Connect width, height and frame_count to the separate H3 reference connector. '
+                   'Author: Aman Dolorain.')
     FUNCTION = 'prepare'
-    RETURN_TYPES = ('LATENT', 'CONDITIONING', 'VHS_VIDEOINFO', 'INT', 'FLOAT', 'FLOAT',
-                    'INT', 'INT', 'STRING')
-    RETURN_NAMES = ('latent', 'positive', 'video_info', 'frame_count', 'fps',
-                    'actual_duration_seconds', 'width', 'height', 'summary')
+    RETURN_TYPES = ('LATENT', 'VHS_VIDEOINFO', 'INT', 'FLOAT', 'FLOAT', 'INT', 'INT', 'STRING')
+    RETURN_NAMES = ('latent', 'video_info', 'frame_count', 'fps', 'actual_duration_seconds',
+                    'width', 'height', 'summary')
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -55,49 +54,21 @@ class H3VideoController:
                 'tooltip': 'H3 internally uses multiples of 32. Exact preserves a supported size.'}),
             'frame_rounding': (['up', 'nearest', 'down'], {'default': 'up',
                 'tooltip': 'H3 frame grid is 17k+5 at fixed 24 FPS. Outputs report actual timing.'}),
-            'prepare_mode': (['T2V / I2V', 'Empty AV latent'], {'default': 'T2V / I2V'}),
-            'prompt': ('STRING', {'default': '', 'multiline': True,
-                'tooltip': 'Describe scene, motion and audio. Used in T2V / I2V mode only.'}),
-        }, 'optional': {
-            'clip': ('CLIP', {'tooltip': 'Matching H3 text encoder; required in T2V / I2V mode.'}),
-            'video_vae': ('VAE', {'tooltip': 'Matching H3 video VAE; required in T2V / I2V mode.'}),
-            'first_frame': ('IMAGE', {'tooltip': 'Native H3 behavior stretches this image to the canvas.'}),
-            'last_frame': ('IMAGE', {'tooltip': 'Native H3 behavior center-crops this image to the canvas.'}),
         }}
 
     def prepare(self, duration_seconds, width, height, resolution_preset='Custom',
-                size_rounding='nearest', frame_rounding='up', prepare_mode='T2V / I2V',
-                prompt='', clip=None, video_vae=None, first_frame=None, last_frame=None):
+                size_rounding='nearest', frame_rounding='up'):
         plan = make_plan(duration_seconds, width, height, resolution_preset,
                          size_rounding, frame_rounding)
-        if prepare_mode not in ('T2V / I2V', 'Empty AV latent'):
-            raise ValueError('Unknown preparation mode.')
-        if prepare_mode == 'T2V / I2V':
-            if clip is None or video_vae is None:
-                raise ValueError('T2V / I2V mode requires clip and video_vae. For a model-free '
-                                 'latent/timing check choose Empty AV latent mode.')
-        elif prompt.strip() or any(x is not None for x in (clip, video_vae, first_frame, last_frame)):
-            raise ValueError('Empty AV latent mode does not process prompts or keyframes. '
-                             'Use T2V / I2V mode, or clear these inputs.')
         native = _native_module()
-        if prepare_mode == 'T2V / I2V':
-            if not hasattr(native, 'MiniMaxH3ImageToVideo'):
-                raise RuntimeError('This ComfyUI build lacks MiniMaxH3ImageToVideo. Update ComfyUI.')
-            positive, latent = _results(native.MiniMaxH3ImageToVideo.execute(
-                clip=clip, vae=video_vae, prompt=prompt, width=plan.width, height=plan.height,
-                length=plan.frames, first_frame=first_frame, last_frame=last_frame), 2)
-        else:
-            if not hasattr(native, 'EmptyMiniMaxH3LatentAV'):
-                raise RuntimeError('This ComfyUI build lacks EmptyMiniMaxH3LatentAV. Update ComfyUI.')
-            latent, = _results(native.EmptyMiniMaxH3LatentAV.execute(
-                width=plan.width, height=plan.height, length=plan.frames), 1)
-            positive = None  # Intentionally unavailable; do not connect this output in Empty mode.
+        if not hasattr(native, 'EmptyMiniMaxH3LatentAV'):
+            raise RuntimeError('This ComfyUI build lacks EmptyMiniMaxH3LatentAV. Update ComfyUI.')
+        latent, = _results(native.EmptyMiniMaxH3LatentAV.execute(
+            width=plan.width, height=plan.height, length=plan.frames), 1)
         _check_latent(latent, plan)
-        summary = plan.summary() + '\nPreparation: ' + prepare_mode
-        if positive is None:
-            summary += '\nPositive output is unavailable in Empty AV latent mode.'
+        summary = plan.summary() + '\nPreparation: Empty AV latent; prompt and references use the separate H3 connector.'
         return {'ui': {'text': [summary]}, 'result': (
-            latent, positive, plan.video_info(), plan.frames, FPS, plan.actual_seconds,
+            latent, plan.video_info(), plan.frames, FPS, plan.actual_seconds,
             plan.width, plan.height, summary)}
 
 

@@ -108,43 +108,27 @@ class WrapperTests(unittest.TestCase):
         self.assertEqual(MODULE.NODE_DISPLAY_NAME_MAPPINGS['H3VideoController'],'H3 Video Controller')
         self.assertEqual(MODULE.__author__,'Aman Dolorain')
 
-    def test_missing_models_fail_before_native_import(self):
-        with patch.object(MODULE,'_native_module') as load:
-            with self.assertRaisesRegex(ValueError,'requires clip and video_vae'):
-                MODULE.H3VideoController().prepare(**self.args())
-            load.assert_not_called()
+    def test_removed_inputs_and_conditioning_output(self):
+        fields = MODULE.H3VideoController.INPUT_TYPES()
+        self.assertNotIn('optional', fields)
+        for name in ('clip', 'video_vae', 'first_frame', 'last_frame', 'prompt', 'prepare_mode'):
+            self.assertNotIn(name, fields['required'])
+        self.assertNotIn('CONDITIONING', MODULE.H3VideoController.RETURN_TYPES)
 
-    def test_empty_mode_rejects_silently_ignored_inputs(self):
-        for kw in (dict(prompt='hello'),dict(first_frame=object()),dict(clip=object())):
-            with self.assertRaisesRegex(ValueError,'does not process'):
-                MODULE.H3VideoController().prepare(**self.args(prepare_mode='Empty AV latent',**kw))
-
-    def test_empty_mode_contract(self):
-        p=make_plan()
-        fake=types.SimpleNamespace(EmptyMiniMaxH3LatentAV=types.SimpleNamespace(
-            execute=lambda **kw: types.SimpleNamespace(result=(latent_for(p),))))
-        with patch.object(MODULE,'_native_module',return_value=fake):
-            out=MODULE.H3VideoController().prepare(**self.args(prepare_mode='Empty AV latent'))['result']
-        self.assertEqual(len(out),len(MODULE.H3VideoController.RETURN_TYPES))
-        self.assertIsNone(out[1])
-        self.assertEqual(out[3:5],(124,24.))
-        self.assertEqual(out[6:8],(512,512))
-        self.assertIn('unavailable',out[-1])
-
-    def test_native_i2v_receives_actual_size_and_keyframes(self):
+    def test_empty_latent_receives_aligned_dimensions_and_returns_metadata(self):
         p=make_plan(width=854,height=479)
-        calls=[];clip=object();vae=object();first=object();last=object();positive=object()
+        calls=[]
         def execute(**kw):
             calls.append(kw)
-            return types.SimpleNamespace(result=(positive,latent_for(p)))
-        fake=types.SimpleNamespace(MiniMaxH3ImageToVideo=types.SimpleNamespace(execute=execute))
+            return types.SimpleNamespace(result=(latent_for(p),))
+        fake=types.SimpleNamespace(EmptyMiniMaxH3LatentAV=types.SimpleNamespace(execute=execute))
         with patch.object(MODULE,'_native_module',return_value=fake):
-            out=MODULE.H3VideoController().prepare(**self.args(width=854,height=479,
-                clip=clip,video_vae=vae,first_frame=first,last_frame=last,prompt='Scene. Audio.'))['result']
-        self.assertEqual((calls[0]['width'],calls[0]['height'],calls[0]['length']),(864,480,124))
-        self.assertIs(calls[0]['first_frame'],first);self.assertIs(calls[0]['last_frame'],last)
-        self.assertIs(out[1],positive)
-        self.assertEqual(out[2]['loaded_width'],864)
+            out=MODULE.H3VideoController().prepare(**self.args(width=854,height=479))['result']
+        self.assertEqual(calls, [dict(width=864,height=480,length=124)])
+        self.assertEqual(len(out),len(MODULE.H3VideoController.RETURN_TYPES))
+        self.assertEqual(out[1]['loaded_width'],864)
+        self.assertEqual(out[2:4],(124,24.))
+        self.assertEqual(out[5:7],(864,480))
 
     def test_changed_native_layout_fails_instead_of_wrong_metadata(self):
         bad=latent_for(make_plan(width=256,height=256))
@@ -152,7 +136,7 @@ class WrapperTests(unittest.TestCase):
             execute=lambda **kw: types.SimpleNamespace(result=(bad,))))
         with patch.object(MODULE,'_native_module',return_value=fake):
             with self.assertRaisesRegex(RuntimeError,'dimensions differ'):
-                MODULE.H3VideoController().prepare(**self.args(prepare_mode='Empty AV latent'))
+                MODULE.H3VideoController().prepare(**self.args())
 
     def test_wrong_public_output_contract(self):
         with self.assertRaisesRegex(RuntimeError,'contract changed'):
@@ -161,11 +145,8 @@ class WrapperTests(unittest.TestCase):
     def test_missing_native_classes(self):
         with patch.object(MODULE,'_native_module',return_value=types.SimpleNamespace()):
             with self.assertRaisesRegex(RuntimeError,'lacks Empty'):
-                MODULE.H3VideoController().prepare(**self.args(prepare_mode='Empty AV latent'))
+                MODULE.H3VideoController().prepare(**self.args())
 
-    def test_unknown_mode(self):
-        with self.assertRaisesRegex(ValueError,'Unknown preparation'):
-            MODULE.H3VideoController().prepare(**self.args(prepare_mode='typo'))
 
 
 if __name__ == '__main__': unittest.main()

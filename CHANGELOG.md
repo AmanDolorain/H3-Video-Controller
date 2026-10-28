@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0
+
+- Remove CLIP, video VAE, first/last frame and prompt inputs.
+- Remove obsolete preparation mode and positive conditioning output.
+- Preserve timing, resolution, metadata and native empty AV latent support.
+- Match the approved internal footer: header color, title font, left-aligned ♪ Aman Dolorain with title inset.
+- Output indices changed: add a fresh node and reconnect by name after upgrading.
+
+# Changelog
+
 ## 1.0.0
 
 - Add a separate MiniMax H3 control node with fixed 24 FPS and 17k+5 timing.

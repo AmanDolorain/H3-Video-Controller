@@ -1,3 +1,5 @@
+> Historical research for version 1.0.0. The removed I2V and prompt features are not part of 1.1.0. See README.md for current behavior.
+
 # Source research and validation
 
 Author: Aman Dolorain
