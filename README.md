@@ -1,4 +1,4 @@
-# H3 Video Controller 1.2.2
+# H3 Video Controller 1.2.3
 
 Author: Aman Dolorain
 
@@ -50,3 +50,7 @@ The frontend repairs old positional widget values, removes obsolete inputs and d
 ## Resolution controls in 1.2.2
 
 Selecting a resolution preset updates the visible width and height. Custom preserves the entered dimensions; execution aligns them to the nearest multiple of 32 (minimum 32). Returning to Custom restores the last custom size, saved in node properties. Editing either dimension while a preset is selected switches to Custom. Loaded workflows synchronize the selected preset after legacy migration. Install the complete folder including web/resolution.js.
+
+## Registry release 1.2.3
+
+Removes dynamic source execution from an optional development test and excludes development-only files from Registry archives. Runtime behavior is unchanged. See REGISTRY_INSTALL.md for confirmed install-gate findings, external scan-status limitations and release steps.

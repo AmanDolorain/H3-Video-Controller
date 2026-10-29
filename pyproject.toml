@@ -1,6 +1,6 @@
 [project]
 name = "h3-video-controller"
-version = "1.2.2"
+version = "1.2.3"
 description = "H3 Video Controller for ComfyUI: flexible square/portrait/landscape resolution, native MiniMax H3 joint video-audio latent, seconds-to-frames planning and metadata."
 authors = [{name = "Aman Dolorain"}]
 requires-python = ">=3.10"

@@ -1,3 +1,11 @@
+# 1.2.3 — 2026-10-29
+
+- Replace the optional upstream-source execution test with passive AST checks.
+- Use ordinary package imports in unit tests.
+- Exclude development tests and GitHub workflows from Registry archives via .comfyignore.
+- Preserve controller runtime behavior, sockets, timing, resolution synchronization and footer.
+- Registry security review remains external; publish success is not Active status.
+
 # 1.2.2
 
 - Synchronize displayed width/height with the selected resolution preset.

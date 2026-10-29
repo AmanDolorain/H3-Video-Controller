@@ -1,4 +1,4 @@
-import importlib.util
+import importlib
 import math
 import pathlib
 import sys
@@ -7,12 +7,14 @@ import unittest
 from unittest.mock import patch
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-SPEC = importlib.util.spec_from_file_location('h3_video_controller', ROOT / '__init__.py',
-                                             submodule_search_locations=[str(ROOT)])
-MODULE = importlib.util.module_from_spec(SPEC)
-sys.modules[SPEC.name] = MODULE
-SPEC.loader.exec_module(MODULE)
-from h3_video_controller.planning import make_plan, resolve_size, PRESETS, FPS, MAX_FRAMES
+sys.path.insert(0, str(ROOT.parent))
+MODULE = importlib.import_module(ROOT.name)
+PLANNING = importlib.import_module(ROOT.name + '.planning')
+make_plan = PLANNING.make_plan
+resolve_size = PLANNING.resolve_size
+PRESETS = PLANNING.PRESETS
+FPS = PLANNING.FPS
+MAX_FRAMES = PLANNING.MAX_FRAMES
 
 
 def latent_for(plan):

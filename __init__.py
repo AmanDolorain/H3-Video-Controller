@@ -3,7 +3,7 @@ from importlib import import_module
 from .planning import FPS, PRESETS, make_plan
 
 __author__ = 'Aman Dolorain'
-__version__ = '1.2.2'
+__version__ = '1.2.3'
 WEB_DIRECTORY = './web'
 
 
