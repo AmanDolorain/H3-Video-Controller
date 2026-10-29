@@ -1,0 +1,5 @@
+# Development-only files remain in GitHub but are not required at runtime.
+tests/
+.github/
+__pycache__/
+*.pyc
